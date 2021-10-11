@@ -91,9 +91,10 @@ class HHG:
         if self._Z == 2:
             f = 1
         else:
-            f = 3
-        return C_nl_sq * f * self._I_p * (2 * np.sqrt((2 * self._I_p)**3) / abs(E))**(2 * n - 1) \
-                * np.exp(- 2 * np.sqrt((2 * self._I_p)**3) / (3 * abs(E)))               
+            f = 3    
+        return f * C_nl_sq * np.sqrt(3 * E / (np.pi * (2 * self._I_p)**1.5)) * \
+            self._I_p * (2 * (2 * self._I_p)**1.5 / E)**(2*n - 1) * \
+            np.exp(-2 * (2 * self._I_p)**1.5 / (3 * E))
   
     def beta_calc(self):
         I = integrate.quad(self.w_calc, 0, np.pi / self._omega_0)

@@ -9,6 +9,7 @@ import json
 from tkinter.filedialog import asksaveasfile
 import glob
 import os
+from hhg import *
 
 def writeToJSONFile(path, data):
         json.dump(data, path)
@@ -89,3 +90,41 @@ Sigma.grid(row=7, column=1)
 mainloop()
 
 LatestFile = max(glob.iglob('*.json'),key=os.path.getmtime)
+f = open(LatestFile,)
+parameters = json.load(f)
+
+def run(parameters):
+    Z = parameters['Atomic Number']
+    E_0 = parameters['Laser E-field Amplitude']
+    omega_0 = parameters['Laser Angular Frequency']
+    max_n = parameters['Max Harmonic']
+    cycles = parameters['Laser Cycles']
+    L = parameters['Propagation Distance']
+    n_density = parameters['Number Density']
+    sigma = parameters['Abs. Cross-section']
+    I_p = I_ps[Z]
+    
+    n_thresh = math.ceil(I_p * e / (omega_0 * hbar))
+    ns = np.arange(n_thresh,max_n,0.1)
+    eta_ps = []
+    harmonics = []
+    for n in ns:
+        try:
+            x = HHG(Z, E_0, omega_0, L, n, n_density, sigma, I_p, cycles)
+            eta = x.eta_plateau()
+            eta_ps.append(eta)
+            harmonics.append(n)
+        except:
+            pass
+    try:
+        x = HHG(Z, E_0, omega_0, L, 50, n_density, sigma, I_p, cycles)
+        eta_cutoff = x.eta_cutoff()
+    except:
+        eta_cutoff = None
+    return eta_ps, harmonics, eta_cutoff
+
+eta_ps, harmonics, eta_cutoff = run(parameters)
+plt.plot(harmonics, eta_ps)
+plt.yscale('log')
+print(eta_cutoff)
+    

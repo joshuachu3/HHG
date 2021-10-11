@@ -7,13 +7,14 @@ Created on Wed Sep 15 11:07:43 2021
 from hhg import *
 import matplotlib.pyplot as plt
 
-I_p = 21.5645 * e / E_h
+I_p = 24.587387 * e / E_h
 E_0 = 0.16 * E_h / (e * a_0)
 lambda_0 = 8e-7
 omega_0 = 2 * np.pi * c * hbar / (lambda_0 *  E_h)
-harmonics = np.arange(15,76,0.1)
+harmonics = np.arange(1,100,0.1)
 energies = []
 a_rec_sq = []
+a_s = []
 
 def a_rec_calc(Z, k_n):
         a_0 = 1 / (2 * k_n * np.sqrt(np.pi))
@@ -26,12 +27,12 @@ def a_rec_calc(Z, k_n):
         
         def u_01(r):
             return 2 / np.pi * k_n**2 * spherical_jn(0, k_n * r) * \
-                        spherical_jn(1, k_n * r)
+                        spherical_jn(0, k_n * r)
         def u_12(r):
             return 2 / np.pi * k_n**2 * spherical_jn(2, k_n * r) * \
-                        spherical_jn(1, k_n * r)
+                        spherical_jn(0, k_n * r)
         
-        def u_01_r(r):
+        def u_01_r(r):      
             return np.real(u_01(r))
 
         def u_01_i(r):
@@ -49,7 +50,7 @@ def a_rec_calc(Z, k_n):
                 I_01_i = integrate.quad(u_01_i,0,np.inf)
                 I_01 = I_01_r[0] + 1j * I_01_i[0]
             else:
-                I_01 = integrate.quad(u_01, 0, np.inf)[0]
+                I_01 = integrate.quad(u_01, 0, 100)[0]
             print(I_01)
             return -a_1 * c_1 * 2 * I_01
         else:
@@ -61,17 +62,32 @@ def a_rec_calc(Z, k_n):
                 I_01 = I_01_r[0] + 1j * I_01_i[0]
                 I_12 = I_12_r[0] + 1j * I_12_i[0]
             else:
-                I_01 = integrate.quad(u_01, 0, np.inf)[0]
-                I_12 = integrate.quad(u_12, 0, np.inf)[0]
+                I_01 = integrate.quad(u_01, 0, 100)[0]
+                I_12 = integrate.quad(u_12, 0, 100)[0]
             return -a_0 * c_0 * Z * I_01 - a_2 * c_2 * Z * I_12
 
 for n in harmonics:
     E = n * omega_0 * E_h / e
     energies.append(E)
     k_n = cmath.sqrt(2 * (n * omega_0 - I_p))
-    a = a_rec_calc(10,k_n)
-    a = abs(a)**2
-    a_rec_sq.append(a)
+    a = a_rec_calc(2,k_n)
+    a_sq = abs(a)**2
+    a_rec_sq.append(a_sq)
+    a_s.append(abs(a))
 
-plt.plot(energies, a_rec_sq) 
-plt.yscale('log')  
+plt.plot(energies, a_s) 
+plt.yscale('log') 
+#%%
+k_n = cmath.sqrt(2 * (14*omega_0 - I_p))
+def u_00(r):
+    return 2 / np.pi * k_n**2 * spherical_jn(0, k_n * r) * \
+                        spherical_jn(0, k_n * r)
+def u_02(r):
+    return 2 / np.pi * k_n**2 * spherical_jn(2, k_n * r) * \
+                        spherical_jn(0, k_n * r)
+r = np.arange(0,100,0.1)
+
+u00 = [u_00(x) for x in r]
+u02 = [u_02(x) for x in r]
+plt.plot(r,u00)
+plt.plot(r,u02)
