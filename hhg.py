@@ -23,6 +23,13 @@ hbar =  6.62607015e-34/(2 * np.pi)
 e = 1.602176634e-19
 m_e = 9.1093837015e-31
 
+I_ps = {2: 24.587387,
+        10: 21.5645,
+        18: 15.7596,
+        36: 13.9996,
+        54: 12.1299
+        }
+
 def gamma_integrand(x,a): #gamma function for calculation of ionisation rate, w
     return x**(a-1)*np.exp(-x)
 
